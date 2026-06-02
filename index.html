@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Semana">
+  <meta name="theme-color" content="#EEF7E5">
+  <title>Semana</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Nunito+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --bg:      #EEF7E5;
+  --bg2:     #FFFFFF;
+  --bg3:     #E2F0D5;
+  --bg4:     #D3E8C2;
+  --border:  rgba(100,160,70,0.18);
+  --border2: rgba(100,160,70,0.32);
+  --text:    #3A5228;
+  --text2:   #6A8F52;
+  --text3:   #9AB880;
+  --accent:  #78C048;
+  --sans:    'Nunito', system-ui, sans-serif;
+  --body:    'Nunito Sans', system-ui, sans-serif;
+  --radius:  14px;
+  --radius-sm: 10px;
+  --radius-lg: 20px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(238,247,229,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 14px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-brand {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  flex: 1;
+}
+
+.nav-brand span {
+  color: var(--accent);
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg3);
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.nav-tab.active {
+  background: var(--bg2);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(80,140,40,0.15);
+}
+
+/* ── VIEWS ── */
+.view { display: none; padding-bottom: 40px; }
+.view.active { display: block; }
+
+/* ── WEEK HEADER ── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 8px;
+  gap: 6px;
+}
+
+.week-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text2);
+  letter-spacing: 0.01em;
+  flex: 1;
+  text-align: center;
+}
+
+.week-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.week-btn:active { transform: scale(0.9); }
+
+.today-btn {
+  background: var(--accent);
+  border: none;
+  color: white;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 11px;
+  border-radius: 20px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: all 0.15s;
+}
+
+.today-btn:active { transform: scale(0.94); }
+
+/* ── DAY PILLS ── */
+.day-pills {
+  display: flex;
+  gap: 5px;
+  padding: 2px 14px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.day-pills::-webkit-scrollbar { display: none; }
+
+.day-pill {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 7px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1.5px solid transparent;
+  min-width: 38px;
+  background: transparent;
+}
+
+.day-pill.active {
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.day-pill.active .dp-name,
+.day-pill.active .dp-num { color: white; }
+
+.day-pill.today:not(.active) { border-color: var(--accent); }
+.day-pill.today:not(.active) .dp-num { color: var(--accent); }
+
+.dp-name {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.dp-num {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text2);
+}
+
+.dp-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.day-pill.has-blocks .dp-dot { background: var(--accent); }
+.day-pill.active .dp-dot { background: rgba(255,255,255,0.6); }
+
+/* ── CALENDAR GRID ── */
+.calendar-grid {
+  padding: 0 14px;
+}
+
+.cal-wrap {
+  position: relative;
+}
+
+.hour-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hour-row {
+  display: flex;
+  align-items: flex-start;
+  border-top: 1px solid var(--border);
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.hour-row:active { background: rgba(120,192,72,0.04); }
+
+.hour-label {
+  width: 44px;
+  flex-shrink: 0;
+  padding-top: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.hour-click {
+  flex: 1;
+  height: 100%;
+  pointer-events: all;
+}
+
+.last-hour-line {
+  border-top: 1px solid var(--border);
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+/* ── BLOCKS LAYER ── */
+.blocks-layer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 48px;
+  right: 0;
+  pointer-events: none;
+}
+
+.block {
+  position: absolute;
+  left: 0;
+  right: 4px;
+  border-radius: 10px;
+  padding: 6px 8px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  pointer-events: all;
+  overflow: hidden;
+  border-left-width: 3px;
+  border-left-style: solid;
+  transition: transform 0.1s;
+}
+
+.block:active { transform: scale(0.97); }
+
+.block-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.block-info { flex: 1; overflow: hidden; }
+
+.block-name {
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.block-cat {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
+.block-delete {
+  background: rgba(0,0,0,0.08);
+  border: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  flex-shrink: 0;
+  line-height: 1;
+  padding: 0;
+}
+
+.block-duration {
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.6;
+  align-self: flex-end;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(58,82,40,0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--bg2);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  width: 100%;
+  padding: 8px 20px 40px;
+  transform: translateY(40px);
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.modal-overlay.open .modal { transform: translateY(0); }
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg4);
+  margin: 8px auto 20px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 7px;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text3); font-weight: 400; }
+
+.form-select {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 12px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── CATEGORY PILLS ── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+
+.cat-pill {
+  background: var(--bg3);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 8px 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.cat-pill .cat-icon { font-size: 18px; }
+.cat-pill .cat-name { font-size: 9px; font-weight: 800; color: var(--text2); letter-spacing: 0.02em; }
+.cat-pill:active { transform: scale(0.92); }
+
+/* ── BUTTONS ── */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: none;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 8px;
+}
+
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+
+.btn-secondary {
+  background: var(--bg3);
+  color: var(--text2);
+  border: 1.5px solid var(--border);
+}
+
+/* ── GOALS ── */
+.goals-header { padding: 16px 14px 8px; }
+
+.week-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.week-sub {
+  font-size: 12px;
+  color: var(--text3);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.goal-add-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+}
+
+.goal-add-input {
+  flex: 1;
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.goal-add-input::placeholder { color: var(--text3); font-weight: 400; }
+.goal-add-input:focus { border-color: var(--accent); }
+
+.goal-add-btn {
+  width: 42px;
+  height: 42px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+
+.goal-add-btn:active { transform: scale(0.9); }
+
+.goals-list {
+  padding: 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.goal-item {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: opacity 0.2s;
+}
+
+.goal-item.done { opacity: 0.45; }
+
+.goal-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  transition: all 0.15s;
+  background: transparent;
+  color: transparent;
+}
+
+.goal-item.done .goal-check {
+  background: var(--accent);
+  border-color: transparent;
+  color: white;
+}
+
+.goal-text { flex: 1; font-size: 14px; font-weight: 600; color: var(--text); }
+.goal-item.done .goal-text { text-decoration: line-through; color: var(--text3); }
+
+.goal-del {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  font-weight: 400;
+}
+
+/* ── STATS ── */
+.stats-section { padding: 14px; }
+
+.stats-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.stat-icon { font-size: 16px; flex-shrink: 0; }
+.stat-info { flex: 1; }
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.stat-bar-wrap {
+  height: 6px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+.stat-hours {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2);
+  min-width: 32px;
+  text-align: right;
+}
+
+.total-card {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.total-stat { text-align: center; }
+
+.total-num {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.total-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── HISTORY ── */
+.history-header { padding: 16px 14px 8px; }
+
+#history-list {
+  padding: 6px 14px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-card {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.history-card:active { transform: scale(0.98); }
+
+.history-card.current-week {
+  border-color: var(--accent);
+  background: #F4FCE8;
+}
+
+.hist-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.hist-week-label {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.hist-week-key {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.hist-total {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1;
+}
+
+.hist-total-unit { font-size: 13px; font-weight: 600; color: var(--text3); margin-left: 1px; }
+
+.hist-cats { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+
+.hist-cat-row { display: flex; align-items: center; gap: 8px; }
+.hist-cat-icon { font-size: 13px; flex-shrink: 0; }
+
+.hist-bar-wrap {
+  flex: 1;
+  height: 5px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hist-bar { height: 100%; border-radius: 3px; }
+
+.hist-cat-hours {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  min-width: 24px;
+  text-align: right;
+}
+
+.hist-goals-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.hist-goals-text { font-size: 12px; font-weight: 600; color: var(--text3); }
+
+.hist-goals-dots { display: flex; gap: 4px; }
+
+.hist-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border2);
+}
+
+.hist-dot.done { background: var(--accent); border-color: transparent; }
+
+.hist-goto {
+  font-size: 12px;
+  color: var(--accent);
+  text-align: right;
+  font-weight: 800;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text3);
+}
+
+.empty-icon { font-size: 44px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; font-weight: 600; line-height: 1.6; }
+
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-brand">Semana</span>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="calendar" onclick="setView('calendar')">Agenda</button>
+      <button class="nav-tab" data-tab="goals" onclick="setView('goals')">Objetivos</button>
+      <button class="nav-tab" data-tab="stats" onclick="setView('stats')">Resumen</button>
+      <button class="nav-tab" data-tab="history" onclick="setView('history')">Historial</button>
+    </div>
+  </nav>
+
+  <!-- ── VIEW: CALENDAR ── -->
+  <div id="view-calendar" class="view active">
+
+    <!-- Week navigation -->
+    <div class="week-nav">
+      <button class="week-btn" onclick="prevWeek()">‹</button>
+      <button class="today-btn" onclick="goToday()">HOY</button>
+      <span id="week-label" class="week-label"></span>
+      <button class="week-btn" onclick="nextWeek()">›</button>
+    </div>
+
+    <!-- Day pills -->
+    <div class="day-pills" id="day-pills"></div>
+
+    <!-- Calendar grid -->
+    <div class="calendar-grid" id="calendar-grid"></div>
+
+  </div>
+
+  <!-- ── VIEW: GOALS ── -->
+  <div id="view-goals" class="view">
+    <div class="goals-header">
+      <div class="week-title" id="goals-week-title"></div>
+      <div class="week-sub" id="goals-week-sub"></div>
+    </div>
+
+    <div class="goal-add-row">
+      <input
+        class="goal-add-input"
+        id="goal-input"
+        type="text"
+        placeholder="Añadir objetivo de la semana…"
+        maxlength="120"
+        onkeydown="if(event.key==='Enter') addGoal()"
+      >
+      <button class="goal-add-btn" onclick="addGoal()">+</button>
+    </div>
+
+    <div class="goals-list" id="goals-list"></div>
+  </div>
+
+  <!-- ── VIEW: STATS ── -->
+  <div id="view-stats" class="view">
+
+    <!-- Total card -->
+    <div class="stats-section">
+      <div class="total-card">
+        <div class="total-stat">
+          <div class="total-num" id="stat-total-hours">0</div>
+          <div class="total-label">Horas planificadas</div>
+        </div>
+        <div class="total-stat">
+          <div class="total-num" id="stat-blocks">0h</div>
+          <div class="total-label">Media diaria</div>
+        </div>
+        <div class="total-stat">
+          <div class="total-num" id="stat-goals-done">0/0</div>
+          <div class="total-label">Objetivos cumplidos</div>
+        </div>
+        <div class="total-stat">
+          <div class="total-num" id="stat-productivity">—</div>
+          <div class="total-label">Tiempo trabajo</div>
+        </div>
+      </div>
+
+      <div class="stats-title">Desglose por actividad</div>
+      <div id="stats-rows"></div>
+    </div>
+
+  </div>
+
+  <!-- ── VIEW: HISTORY ── -->
+  <div id="view-history" class="view">
+    <div class="history-header">
+      <div class="week-title">Historial</div>
+      <div class="week-sub" id="history-sub"></div>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- ── MODAL ── -->
+  <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modal-title">Añadir bloque</div>
+
+      <div class="form-group">
+        <label class="form-label">Actividad</label>
+        <input
+          class="form-input"
+          id="block-label"
+          type="text"
+          placeholder="¿Qué vas a hacer?"
+          maxlength="60"
+          onkeydown="if(event.key==='Enter') saveBlock()"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Horario</label>
+        <div class="form-row">
+          <select class="form-select" id="block-hour-start" onchange="onStartHourChange()"></select>
+          <select class="form-select" id="block-hour-end"></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Categoría</label>
+        <div class="cat-grid" id="cat-grid">
+          <!-- generado por JS -->
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveBlock()">Guardar</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script>
+/* ── CONFIG ── */
+const HOUR_HEIGHT = 60; // px por hora en el calendario
+
+const CONFIG = {
+  startHour: 7,
+  endHour: 24,
+  days: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+  categories: [
+    { id: 'trabajo',   label: 'Trabajo',   color: '#4A8BC4', light: '#D6EAFB', icon: '💼' },
+    { id: 'ejercicio', label: 'Ejercicio', color: '#5AAF5A', light: '#D6F0D6', icon: '🏋️' },
+    { id: 'comida',    label: 'Comida',    color: '#D4900A', light: '#FEF0C8', icon: '🍽️' },
+    { id: 'ocio',      label: 'Ocio',      color: '#9060D0', light: '#EAD9F8', icon: '🎮' },
+    { id: 'social',    label: 'Social',    color: '#D04880', light: '#FAD5E8', icon: '👥' },
+    { id: 'higiene',   label: 'Higiene',   color: '#2090B0', light: '#C8EAF5', icon: '🚿' },
+    { id: 'descanso',  label: 'Descanso',  color: '#8090A0', light: '#E0E8F0', icon: '😴' },
+    { id: 'personal',  label: 'Personal',  color: '#C04040', light: '#FAD4D4', icon: '⭐' }
+  ]
+};
+
+/* ── STATE ── */
+let state = {
+  currentWeekStart: getWeekStart(new Date()),
+  selectedDay: new Date().getDay() === 0 ? 6 : new Date().getDay() - 1,
+  blocks: {},   // key: "YYYY-WW" → { "dayIndex-hour": [{id, label, catId, hour, endHour}] }
+  goals: {},    // key: "YYYY-WW" → [{id, text, done}]
+  modal: { open: false, day: null, hour: null }
+};
+
+/* ── STORAGE ── */
+function saveState() {
+  try {
+    localStorage.setItem('semana_blocks', JSON.stringify(state.blocks));
+    localStorage.setItem('semana_goals', JSON.stringify(state.goals));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const b = localStorage.getItem('semana_blocks');
+    const g = localStorage.getItem('semana_goals');
+    if (b) state.blocks = JSON.parse(b);
+    if (g) state.goals = JSON.parse(g);
+  } catch(e) {}
+}
+
+/* ── HELPERS ── */
+function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function getWeekKey(weekStart) {
+  const y = weekStart.getFullYear();
+  const start = new Date(weekStart.getFullYear(), 0, 1);
+  const week = Math.ceil(((weekStart - start) / 86400000 + start.getDay() + 1) / 7);
+  return `${y}-W${String(week).padStart(2, '0')}`;
+}
+
+function getDayDate(weekStart, dayIndex) {
+  const d = new Date(weekStart);
+  d.setDate(d.getDate() + dayIndex);
+  return d;
+}
+
+function formatWeekLabel(weekStart) {
+  const end = new Date(weekStart);
+  end.setDate(end.getDate() + 6);
+  const fmt = (d) => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+  return `${fmt(weekStart)} — ${fmt(end)}`;
+}
+
+function formatHour(h) {
+  return h === 24 ? '00:00' : `${String(h).padStart(2,'0')}:00`;
+}
+
+function isToday(weekStart, dayIndex) {
+  const today = new Date();
+  const d = getDayDate(weekStart, dayIndex);
+  return d.toDateString() === today.toDateString();
+}
+
+function genId() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function getCat(id) {
+  return CONFIG.categories.find(c => c.id === id) || CONFIG.categories[0];
+}
+
+function getBlocks(weekKey, dayIndex, hour) {
+  return (state.blocks[weekKey]?.[`${dayIndex}-${hour}`] || []);
+}
+
+function getAllDayBlocks(weekKey, dayIndex) {
+  const all = [];
+  for (let h = CONFIG.startHour; h < CONFIG.endHour; h++) {
+    const key = `${dayIndex}-${h}`;
+    if (state.blocks[weekKey]?.[key]) {
+      all.push(...state.blocks[weekKey][key]);
+    }
+  }
+  return all;
+}
+
+function getWeekStats(weekKey) {
+  const totals = {};
+  CONFIG.categories.forEach(c => totals[c.id] = 0);
+  if (!state.blocks[weekKey]) return totals;
+  for (const key of Object.keys(state.blocks[weekKey])) {
+    for (const block of state.blocks[weekKey][key]) {
+      const duration = (block.endHour || block.hour + 1) - block.hour;
+      totals[block.catId] = (totals[block.catId] || 0) + duration;
+    }
+  }
+  return totals;
+}
+
+function getGoals(weekKey) {
+  return state.goals[weekKey] || [];
+}
+
+/* ── RENDER ── */
+function render() {
+  renderDayPills();
+  renderCalendar();
+  renderWeekNav();
+}
+
+function renderWeekNav() {
+  document.getElementById('week-label').textContent = formatWeekLabel(state.currentWeekStart);
+}
+
+function renderDayPills() {
+  const wk = getWeekKey(state.currentWeekStart);
+  const container = document.getElementById('day-pills');
+  container.innerHTML = CONFIG.days.map((name, i) => {
+    const date = getDayDate(state.currentWeekStart, i);
+    const num = date.getDate();
+    const todayClass = isToday(state.currentWeekStart, i) ? 'today' : '';
+    const activeClass = i === state.selectedDay ? 'active' : '';
+    const hasBlocks = getAllDayBlocks(wk, i).length > 0 ? 'has-blocks' : '';
+    return `<div class="day-pill ${todayClass} ${activeClass} ${hasBlocks}" onclick="selectDay(${i})">
+      <span class="dp-name">${name}</span>
+      <span class="dp-num">${num}</span>
+      <div class="dp-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function renderCalendar() {
+  const wk = getWeekKey(state.currentWeekStart);
+  const day = state.selectedDay;
+  const grid = document.getElementById('calendar-grid');
+  const totalHours = CONFIG.endHour - CONFIG.startHour;
+  const totalHeight = totalHours * HOUR_HEIGHT;
+
+  let hoursHtml = '';
+  for (let h = CONFIG.startHour; h < CONFIG.endHour; h++) {
+    const top = (h - CONFIG.startHour) * HOUR_HEIGHT;
+    hoursHtml += `
+      <div class="hour-row" style="top:${top}px;height:${HOUR_HEIGHT}px;"
+           onclick="openModal(${day},${h})">
+        <div class="hour-label">${formatHour(h)}</div>
+        <div class="hour-click"></div>
+      </div>`;
+  }
+  hoursHtml += `<div class="last-hour-line" style="top:${totalHeight}px;"></div>`;
+
+  const allBlocks = [];
+  for (let h = CONFIG.startHour; h < CONFIG.endHour; h++) {
+    getBlocks(wk, day, h).forEach(b => allBlocks.push(b));
+  }
+
+  let blocksHtml = '';
+  for (const block of allBlocks) {
+    const cat = getCat(block.catId);
+    const duration = (block.endHour || block.hour + 1) - block.hour;
+    const top = (block.hour - CONFIG.startHour) * HOUR_HEIGHT + 2;
+    const height = duration * HOUR_HEIGHT - 4;
+    const blockDataStr = JSON.stringify(block).replace(/"/g, '&quot;');
+    const showCat = height > 38;
+    const showDuration = duration > 1;
+
+    blocksHtml += `
+      <div class="block"
+           style="top:${top}px;height:${height}px;background:${cat.light};border-left-color:${cat.color};color:${cat.color};"
+           onclick="event.stopPropagation();openEditModal(${blockDataStr})">
+        <div class="block-top">
+          <div class="block-info">
+            <div class="block-name">${cat.icon} ${block.label}</div>
+            ${showCat ? `<div class="block-cat">${formatHour(block.hour)}–${formatHour(block.endHour || block.hour+1)}</div>` : ''}
+          </div>
+          <button class="block-delete"
+                  onclick="event.stopPropagation();deleteBlock('${wk}',${day},${block.hour},'${block.id}')">×</button>
+        </div>
+        ${showDuration ? `<div class="block-duration">${duration}h</div>` : ''}
+      </div>`;
+  }
+
+  grid.innerHTML = `
+    <div class="cal-wrap" style="height:${totalHeight + 1}px;">
+      <div class="hour-lines">${hoursHtml}</div>
+      <div class="blocks-layer">${blocksHtml}</div>
+    </div>`;
+}
+
+function renderGoals() {
+  const wk = getWeekKey(state.currentWeekStart);
+  const goals = getGoals(wk);
+  const container = document.getElementById('goals-list');
+  const date = getDayDate(state.currentWeekStart, 0);
+  const weekLabel = `Semana del ${date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}`;
+
+  document.getElementById('goals-week-title').textContent = weekLabel;
+  document.getElementById('goals-week-sub').textContent = getWeekKey(state.currentWeekStart);
+
+  if (goals.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-text">Ningún objetivo esta semana.<br>Añade algo que quieras conseguir.</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = goals.map(g => `
+    <div class="goal-item ${g.done ? 'done' : ''}">
+      <div class="goal-check" onclick="toggleGoal('${wk}','${g.id}')">${g.done ? '✓' : ''}</div>
+      <div class="goal-text">${g.text}</div>
+      <button class="goal-del" onclick="deleteGoal('${wk}','${g.id}')">×</button>
+    </div>
+  `).join('');
+}
+
+function renderStats() {
+  const wk = getWeekKey(state.currentWeekStart);
+  const totals = getWeekStats(wk);
+  const totalHours = Object.values(totals).reduce((a, b) => a + b, 0);
+  const goals = getGoals(wk);
+  const done = goals.filter(g => g.done).length;
+
+  document.getElementById('stat-total-hours').textContent = totalHours;
+  document.getElementById('stat-blocks').textContent = totalHours > 0 ? Math.round(totalHours / 7 * 10) / 10 + 'h' : '0h';
+  document.getElementById('stat-goals-done').textContent = `${done}/${goals.length}`;
+  document.getElementById('stat-productivity').textContent =
+    totalHours === 0 ? '—' : Math.round((totals.trabajo || 0) / totalHours * 100) + '%';
+
+  const maxHours = Math.max(...Object.values(totals), 1);
+  const statsRows = document.getElementById('stats-rows');
+
+  const sorted = CONFIG.categories
+    .map(c => ({ ...c, hours: totals[c.id] || 0 }))
+    .filter(c => c.hours > 0)
+    .sort((a, b) => b.hours - a.hours);
+
+  if (sorted.length === 0) {
+    statsRows.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-text">Todavía no hay bloques esta semana.</div>
+    </div>`;
+    return;
+  }
+
+  statsRows.innerHTML = sorted.map(c => `
+    <div class="stat-row">
+      <div class="stat-icon">${c.icon}</div>
+      <div class="stat-info">
+        <div class="stat-label">${c.label}</div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar" style="width:${Math.round(c.hours/maxHours*100)}%;background:${c.color};"></div>
+        </div>
+      </div>
+      <div class="stat-hours">${c.hours}h</div>
+    </div>
+  `).join('');
+}
+
+/* ── NAVIGATION ── */
+function selectDay(i) {
+  state.selectedDay = i;
+  renderDayPills();
+  renderCalendar();
+}
+
+function prevWeek() {
+  state.currentWeekStart = new Date(state.currentWeekStart);
+  state.currentWeekStart.setDate(state.currentWeekStart.getDate() - 7);
+  render();
+}
+
+function nextWeek() {
+  state.currentWeekStart = new Date(state.currentWeekStart);
+  state.currentWeekStart.setDate(state.currentWeekStart.getDate() + 7);
+  render();
+}
+
+function goToday() {
+  state.currentWeekStart = getWeekStart(new Date());
+  const today = new Date().getDay();
+  state.selectedDay = today === 0 ? 6 : today - 1;
+  render();
+}
+
+function setView(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`view-${tab}`).classList.add('active');
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  if (tab === 'goals') renderGoals();
+  if (tab === 'stats') renderStats();
+  if (tab === 'history') renderHistory();
+}
+
+/* ── MODAL LOGIC ── */
+let editingBlock = null;
+
+function openModal(day, hour) {
+  editingBlock = null;
+  document.getElementById('modal-title').textContent = `${formatHour(hour)} · ${CONFIG.days[day]}`;
+  document.getElementById('block-label').value = '';
+  document.getElementById('block-hour-start').value = hour;
+  document.getElementById('block-hour-end').value = Math.min(hour + 1, CONFIG.endHour);
+  selectCat(CONFIG.categories[0].id);
+  renderHourOptions();
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('block-label').focus(), 300);
+  state.modal = { open: true, day, hour };
+}
+
+function openEditModal(block) {
+  editingBlock = block;
+  document.getElementById('modal-title').textContent = `Editar bloque`;
+  document.getElementById('block-label').value = block.label;
+  document.getElementById('block-hour-start').value = block.hour;
+  document.getElementById('block-hour-end').value = block.endHour || block.hour + 1;
+  selectCat(block.catId);
+  renderHourOptions();
+  document.getElementById('modal-overlay').classList.add('open');
+  state.modal = { open: true, day: state.selectedDay, hour: block.hour };
+}
+
+function renderHourOptions() {
+  const startSel = document.getElementById('block-hour-start');
+  const endSel = document.getElementById('block-hour-end');
+  const startVal = parseInt(startSel.value);
+  const endVal = parseInt(endSel.value);
+
+  startSel.innerHTML = Array.from({ length: CONFIG.endHour - CONFIG.startHour }, (_, i) => {
+    const h = CONFIG.startHour + i;
+    return `<option value="${h}" ${h === startVal ? 'selected' : ''}>${formatHour(h)}</option>`;
+  }).join('');
+
+  endSel.innerHTML = Array.from({ length: CONFIG.endHour - CONFIG.startHour }, (_, i) => {
+    const h = CONFIG.startHour + i + 1;
+    return `<option value="${h}" ${h === endVal ? 'selected' : ''}>${formatHour(h === 24 ? 0 : h)} ${h < 10 ? '' : ''}</option>`;
+  }).join('');
+}
+
+let selectedCat = CONFIG.categories[0].id;
+
+function selectCat(id) {
+  selectedCat = id;
+  document.querySelectorAll('.cat-pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.cat === id);
+    if (p.dataset.cat === id) {
+      const cat = getCat(id);
+      p.style.borderColor = cat.color;
+    } else {
+      p.style.borderColor = 'transparent';
+    }
+  });
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingBlock = null;
+}
+
+function saveBlock() {
+  const label = document.getElementById('block-label').value.trim();
+  if (!label) { document.getElementById('block-label').focus(); return; }
+  const hour = parseInt(document.getElementById('block-hour-start').value);
+  const endHour = parseInt(document.getElementById('block-hour-end').value);
+  const wk = getWeekKey(state.currentWeekStart);
+  const day = state.modal.day;
+
+  if (!state.blocks[wk]) state.blocks[wk] = {};
+  const key = `${day}-${hour}`;
+
+  if (editingBlock) {
+    const oldKey = `${day}-${editingBlock.hour}`;
+    if (state.blocks[wk][oldKey]) {
+      state.blocks[wk][oldKey] = state.blocks[wk][oldKey].filter(b => b.id !== editingBlock.id);
+    }
+  }
+
+  if (!state.blocks[wk][key]) state.blocks[wk][key] = [];
+  state.blocks[wk][key].push({
+    id: editingBlock ? editingBlock.id : genId(),
+    label,
+    catId: selectedCat,
+    hour,
+    endHour: endHour > hour ? endHour : hour + 1
+  });
+
+  saveState();
+  closeModal();
+  render();
+}
+
+function deleteBlock(wk, day, hour, id) {
+  const key = `${day}-${hour}`;
+  if (state.blocks[wk]?.[key]) {
+    state.blocks[wk][key] = state.blocks[wk][key].filter(b => b.id !== id);
+  }
+  saveState();
+  render();
+}
+
+/* ── GOALS ── */
+function addGoal() {
+  const input = document.getElementById('goal-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const wk = getWeekKey(state.currentWeekStart);
+  if (!state.goals[wk]) state.goals[wk] = [];
+  state.goals[wk].push({ id: genId(), text, done: false });
+  input.value = '';
+  saveState();
+  renderGoals();
+}
+
+function toggleGoal(wk, id) {
+  const g = state.goals[wk]?.find(g => g.id === id);
+  if (g) g.done = !g.done;
+  saveState();
+  renderGoals();
+}
+
+function deleteGoal(wk, id) {
+  if (state.goals[wk]) {
+    state.goals[wk] = state.goals[wk].filter(g => g.id !== id);
+  }
+  saveState();
+  renderGoals();
+}
+
+/* ── HISTORY ── */
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  const sub = document.getElementById('history-sub');
+
+  // Recopilar todas las semanas que tienen datos (blocks o goals)
+  const allKeys = new Set([
+    ...Object.keys(state.blocks),
+    ...Object.keys(state.goals)
+  ]);
+
+  if (allKeys.size === 0) {
+    sub.textContent = '';
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <div class="empty-text">Todavía no hay semanas guardadas.<br>Empieza a planificar para ver el historial.</div>
+    </div>`;
+    return;
+  }
+
+  // Ordenar de más reciente a más antigua
+  const sorted = [...allKeys].sort((a, b) => b.localeCompare(a));
+  sub.textContent = `${sorted.length} semana${sorted.length !== 1 ? 's' : ''} guardada${sorted.length !== 1 ? 's' : ''}`;
+
+  container.innerHTML = sorted.map(wk => {
+    const weekStart = weekKeyToDate(wk);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    const totals = getWeekStats(wk);
+    const totalHours = Object.values(totals).reduce((a, b) => a + b, 0);
+    const goals = getGoals(wk);
+    const doneGoals = goals.filter(g => g.done).length;
+
+    const fmt = d => d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const isCurrentWeek = wk === getWeekKey(state.currentWeekStart);
+
+    // Mini barras de categorías
+    const maxH = Math.max(...Object.values(totals), 1);
+    const catBars = CONFIG.categories
+      .filter(c => totals[c.id] > 0)
+      .sort((a, b) => totals[b.id] - totals[a.id])
+      .slice(0, 5)
+      .map(c => `
+        <div class="hist-cat-row">
+          <span class="hist-cat-icon">${c.icon}</span>
+          <div class="hist-bar-wrap">
+            <div class="hist-bar" style="width:${Math.round(totals[c.id]/maxH*100)}%;background:${c.color};"></div>
+          </div>
+          <span class="hist-cat-hours">${totals[c.id]}h</span>
+        </div>
+      `).join('');
+
+    return `
+      <div class="history-card ${isCurrentWeek ? 'current-week' : ''}" onclick="goToWeek('${wk}')">
+        <div class="hist-card-top">
+          <div>
+            <div class="hist-week-label">${fmt(weekStart)} — ${fmt(weekEnd)}</div>
+            <div class="hist-week-key">${wk}${isCurrentWeek ? ' · semana actual' : ''}</div>
+          </div>
+          <div class="hist-total">${totalHours}<span class="hist-total-unit">h</span></div>
+        </div>
+        ${catBars ? `<div class="hist-cats">${catBars}</div>` : ''}
+        ${goals.length > 0 ? `
+          <div class="hist-goals-row">
+            <span class="hist-goals-text">${doneGoals}/${goals.length} objetivos</span>
+            <div class="hist-goals-dots">
+              ${goals.slice(0, 6).map(g => `<div class="hist-dot ${g.done ? 'done' : ''}"></div>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+        <div class="hist-goto">Ver semana →</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function weekKeyToDate(wk) {
+  // wk = "YYYY-WNN"
+  const [yearStr, weekStr] = wk.split('-W');
+  const year = parseInt(yearStr);
+  const week = parseInt(weekStr);
+  const jan1 = new Date(year, 0, 1);
+  const dayOfWeek = jan1.getDay() || 7;
+  const firstMonday = new Date(jan1);
+  firstMonday.setDate(jan1.getDate() + (dayOfWeek <= 4 ? 2 - dayOfWeek : 9 - dayOfWeek));
+  const d = new Date(firstMonday);
+  d.setDate(d.getDate() + (week - 1) * 7);
+  return d;
+}
+
+function goToWeek(wk) {
+  state.currentWeekStart = weekKeyToDate(wk);
+  state.selectedDay = 0;
+  setView('calendar');
+}
+
+
+function onStartHourChange() {
+  const h = parseInt(document.getElementById('block-hour-start').value);
+  const endSel = document.getElementById('block-hour-end');
+  endSel.innerHTML = Array.from({ length: CONFIG.endHour - h }, (_, i) => {
+    const eh = h + i + 1;
+    return `<option value="${eh}" ${eh === h + 1 ? 'selected' : ''}>${formatHour(eh === 24 ? 0 : eh)}</option>`;
+  }).join('');
+}
+
+/* ── INIT ── */
+loadState();
+render();
+
+// Scroll to current hour (approximately)
+window.addEventListener('load', () => {
+  const currentHour = new Date().getHours();
+  if (currentHour >= CONFIG.startHour && currentHour < CONFIG.endHour) {
+    const grid = document.getElementById('calendar-grid');
+    const rowH = 52;
+    const scrollTo = (currentHour - CONFIG.startHour) * rowH - 100;
+    if (scrollTo > 0) window.scrollTo({ top: scrollTo, behavior: 'smooth' });
+  }
+});
+
+</script>
+  <script>
+    // Render category pills in modal
+    const catGrid = document.getElementById('cat-grid');
+    catGrid.innerHTML = CONFIG.categories.map(c => `
+      <div class="cat-pill" data-cat="${c.id}" onclick="selectCat('${c.id}')">
+        <span class="cat-icon">${c.icon}</span>
+        <span class="cat-name">${c.label}</span>
+      </div>
+    `).join('');
+
+    // Service Worker v2 - limpia caché vieja
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').then(reg => reg.update()).catch(() => {});
+    }
+  </script>
+</body>
+</html>

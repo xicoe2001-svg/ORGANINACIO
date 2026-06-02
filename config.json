@@ -1,0 +1,18 @@
+{
+  "app": {
+    "name": "Semana",
+    "version": "1.0.0",
+    "startHour": 7,
+    "endHour": 24
+  },
+  "categories": [
+    { "id": "trabajo",   "label": "Trabajo",    "color": "#2563EB", "light": "#DBEAFE", "icon": "💼" },
+    { "id": "ejercicio", "label": "Ejercicio",  "color": "#16A34A", "light": "#DCFCE7", "icon": "🏋️" },
+    { "id": "comida",    "label": "Comida",     "color": "#D97706", "light": "#FEF3C7", "icon": "🍽️" },
+    { "id": "ocio",      "label": "Ocio",       "color": "#7C3AED", "light": "#EDE9FE", "icon": "🎮" },
+    { "id": "social",    "label": "Social",     "color": "#DB2777", "light": "#FCE7F3", "icon": "👥" },
+    { "id": "higiene",   "label": "Higiene",    "color": "#0891B2", "light": "#CFFAFE", "icon": "🚿" },
+    { "id": "descanso",  "label": "Descanso",   "color": "#6B7280", "light": "#F3F4F6", "icon": "😴" },
+    { "id": "personal",  "label": "Personal",   "color": "#DC2626", "light": "#FEE2E2", "icon": "⭐" }
+  ]
+}
