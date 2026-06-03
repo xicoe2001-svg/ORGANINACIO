@@ -806,6 +806,65 @@ nav {
 .empty-icon { font-size: 44px; margin-bottom: 12px; }
 .empty-text { font-size: 14px; font-weight: 600; line-height: 1.6; }
 
+/* ── BLOCK CHECK (hecho/no hecho) ── */
+.block-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: transparent;
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  margin-right: 2px;
+}
+
+.block.block-done { opacity: 0.5; }
+.block.block-done .block-name { text-decoration: line-through; }
+
+/* ── DAY SELECTOR (repetir) ── */
+.day-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.day-sel-pill {
+  flex: 1;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg3);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.day-sel-pill.selected {
+  background: var(--accent);
+  color: white;
+}
+
+.day-sel-pill:active { transform: scale(0.92); }
+
+.repeat-hint {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  margin-top: 7px;
+}
+
 </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -871,24 +930,24 @@ nav {
     <div class="stats-section">
       <div class="total-card">
         <div class="total-stat">
-          <div class="total-num" id="stat-total-hours">0</div>
-          <div class="total-label">Horas planificadas</div>
-        </div>
-        <div class="total-stat">
-          <div class="total-num" id="stat-blocks">0h</div>
-          <div class="total-label">Media diaria</div>
-        </div>
-        <div class="total-stat">
           <div class="total-num" id="stat-goals-done">0/0</div>
           <div class="total-label">Objetivos cumplidos</div>
         </div>
         <div class="total-stat">
-          <div class="total-num" id="stat-productivity">—</div>
-          <div class="total-label">Tiempo trabajo</div>
+          <div class="total-num" id="stat-streak">0</div>
+          <div class="total-label">Racha (días)</div>
+        </div>
+        <div class="total-stat">
+          <div class="total-num" id="stat-chosen-hours">0h</div>
+          <div class="total-label">Tiempo para ti</div>
+        </div>
+        <div class="total-stat">
+          <div class="total-num" id="stat-completion">—</div>
+          <div class="total-label">Plan cumplido</div>
         </div>
       </div>
 
-      <div class="stats-title">Desglose por actividad</div>
+      <div class="stats-title">Tu tiempo, en lo que tú eliges</div>
       <div id="stats-rows"></div>
     </div>
 
@@ -936,6 +995,14 @@ nav {
         </div>
       </div>
 
+      <div class="form-group" id="repeat-group">
+        <label class="form-label">Repetir en días</label>
+        <div class="day-selector" id="day-selector">
+          <!-- generado por JS -->
+        </div>
+        <div class="repeat-hint" id="repeat-hint">Solo este día</div>
+      </div>
+
       <button class="btn btn-primary" onclick="saveBlock()">Guardar</button>
       <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
     </div>
@@ -949,15 +1016,15 @@ const CONFIG = {
   startHour: 7,
   endHour: 24,
   days: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'],
+  // counts: si cuenta como "tiempo elegido" en stats (trabajo es obligatorio -> false)
   categories: [
-    { id: 'trabajo',   label: 'Trabajo',   color: '#4A8BC4', light: '#D6EAFB', icon: '💼' },
-    { id: 'ejercicio', label: 'Ejercicio', color: '#5AAF5A', light: '#D6F0D6', icon: '🏋️' },
-    { id: 'comida',    label: 'Comida',    color: '#D4900A', light: '#FEF0C8', icon: '🍽️' },
-    { id: 'ocio',      label: 'Ocio',      color: '#9060D0', light: '#EAD9F8', icon: '🎮' },
-    { id: 'social',    label: 'Social',    color: '#D04880', light: '#FAD5E8', icon: '👥' },
-    { id: 'higiene',   label: 'Higiene',   color: '#2090B0', light: '#C8EAF5', icon: '🚿' },
-    { id: 'descanso',  label: 'Descanso',  color: '#8090A0', light: '#E0E8F0', icon: '😴' },
-    { id: 'personal',  label: 'Personal',  color: '#C04040', light: '#FAD4D4', icon: '⭐' }
+    { id: 'trabajo',  label: 'Trabajo',  color: '#4A8BC4', light: '#D6EAFB', icon: '💼', counts: false },
+    { id: 'escalada', label: 'Escalada', color: '#5AAF5A', light: '#D6F0D6', icon: '🧗', counts: true },
+    { id: 'voley',    label: 'Vóley',    color: '#D4900A', light: '#FEF0C8', icon: '🏐', counts: true },
+    { id: 'arte',     label: 'Arte',     color: '#D04880', light: '#FAD5E8', icon: '🎨', counts: true },
+    { id: 'ocio',     label: 'Ocio',     color: '#9060D0', light: '#EAD9F8', icon: '🎮', counts: true },
+    { id: 'social',   label: 'Social',   color: '#2090B0', light: '#C8EAF5', icon: '👥', counts: true },
+    { id: 'personal', label: 'Personal', color: '#C04040', light: '#FAD4D4', icon: '⭐', counts: true }
   ]
 };
 
@@ -1128,12 +1195,15 @@ function renderCalendar() {
     const blockDataStr = JSON.stringify(block).replace(/"/g, '&quot;');
     const showCat = height > 38;
     const showDuration = duration > 1;
+    const doneClass = block.done ? 'block-done' : '';
 
     blocksHtml += `
-      <div class="block"
+      <div class="block ${doneClass}"
            style="top:${top}px;height:${height}px;background:${cat.light};border-left-color:${cat.color};color:${cat.color};"
            onclick="event.stopPropagation();openEditModal(${blockDataStr})">
         <div class="block-top">
+          <button class="block-check" style="border-color:${cat.color};${block.done ? `background:${cat.color};` : ''}"
+                  onclick="toggleBlockDone('${wk}',${day},${block.hour},'${block.id}',event)">${block.done ? '✓' : ''}</button>
           <div class="block-info">
             <div class="block-name">${cat.icon} ${block.label}</div>
             ${showCat ? `<div class="block-cat">${formatHour(block.hour)}–${formatHour(block.endHour || block.hour+1)}</div>` : ''}
@@ -1181,33 +1251,70 @@ function renderGoals() {
 
 function renderStats() {
   const wk = getWeekKey(state.currentWeekStart);
-  const totals = getWeekStats(wk);
-  const totalHours = Object.values(totals).reduce((a, b) => a + b, 0);
   const goals = getGoals(wk);
-  const done = goals.filter(g => g.done).length;
+  const doneGoals = goals.filter(g => g.done).length;
 
-  document.getElementById('stat-total-hours').textContent = totalHours;
-  document.getElementById('stat-blocks').textContent = totalHours > 0 ? Math.round(totalHours / 7 * 10) / 10 + 'h' : '0h';
-  document.getElementById('stat-goals-done').textContent = `${done}/${goals.length}`;
-  document.getElementById('stat-productivity').textContent =
-    totalHours === 0 ? '—' : Math.round((totals.trabajo || 0) / totalHours * 100) + '%';
+  // Recorrer todos los bloques de la semana
+  let totalBlocks = 0, doneBlocks = 0;
+  const chosenHoursByCat = {};   // solo categorías que "cuentan"
+  const dayHasBlocks = {};       // día -> tiene bloques
+  const dayAllDone = {};         // día -> todos los bloques hechos
 
-  const maxHours = Math.max(...Object.values(totals), 1);
+  CONFIG.categories.forEach(c => { if (c.counts) chosenHoursByCat[c.id] = 0; });
+
+  for (let day = 0; day < 7; day++) {
+    let dBlocks = 0, dDone = 0;
+    for (let h = CONFIG.startHour; h < CONFIG.endHour; h++) {
+      const blocks = state.blocks[wk]?.[`${day}-${h}`] || [];
+      for (const b of blocks) {
+        totalBlocks++; dBlocks++;
+        if (b.done) { doneBlocks++; dDone++; }
+        const cat = getCat(b.catId);
+        const dur = (b.endHour || b.hour + 1) - b.hour;
+        // solo cuenta tiempo "para ti" si la categoría cuenta Y el bloque está hecho
+        if (cat.counts && b.done) chosenHoursByCat[b.catId] += dur;
+      }
+    }
+    dayHasBlocks[day] = dBlocks > 0;
+    dayAllDone[day] = dBlocks > 0 && dDone === dBlocks;
+  }
+
+  // Racha: días consecutivos (hasta hoy) con todos los bloques hechos
+  let streak = 0;
+  const todayIdx = (new Date().getDay() === 0) ? 6 : new Date().getDay() - 1;
+  const isCurrentWeek = wk === getWeekKey(getWeekStart(new Date()));
+  const lastDay = isCurrentWeek ? todayIdx : 6;
+  for (let day = lastDay; day >= 0; day--) {
+    if (dayAllDone[day]) streak++;
+    else if (dayHasBlocks[day]) break;  // tenía plan y no lo cumplió -> corta
+    // si no tenía bloques ese día, no suma pero no corta
+  }
+
+  const chosenTotal = Object.values(chosenHoursByCat).reduce((a,b) => a+b, 0);
+  const completion = totalBlocks === 0 ? 0 : Math.round(doneBlocks / totalBlocks * 100);
+
+  document.getElementById('stat-goals-done').textContent = `${doneGoals}/${goals.length}`;
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('stat-chosen-hours').textContent = chosenTotal + 'h';
+  document.getElementById('stat-completion').textContent = totalBlocks === 0 ? '—' : completion + '%';
+
+  // Desglose: solo categorías que cuentan, horas HECHAS
   const statsRows = document.getElementById('stats-rows');
-
   const sorted = CONFIG.categories
-    .map(c => ({ ...c, hours: totals[c.id] || 0 }))
+    .filter(c => c.counts)
+    .map(c => ({ ...c, hours: chosenHoursByCat[c.id] || 0 }))
     .filter(c => c.hours > 0)
     .sort((a, b) => b.hours - a.hours);
 
   if (sorted.length === 0) {
     statsRows.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📊</div>
-      <div class="empty-text">Todavía no hay bloques esta semana.</div>
+      <div class="empty-icon">🌱</div>
+      <div class="empty-text">Cuando marques como hechas tus actividades<br>(escalada, arte, ocio...) aparecerán aquí.</div>
     </div>`;
     return;
   }
 
+  const maxHours = Math.max(...sorted.map(c => c.hours), 1);
   statsRows.innerHTML = sorted.map(c => `
     <div class="stat-row">
       <div class="stat-icon">${c.icon}</div>
@@ -1269,6 +1376,9 @@ function openModal(day, hour) {
   document.getElementById('block-hour-end').value = Math.min(hour + 1, CONFIG.endHour);
   selectCat(CONFIG.categories[0].id);
   renderHourOptions();
+  repeatDays = [day];          // por defecto solo el día actual
+  renderRepeatDays();
+  document.getElementById('repeat-group').style.display = 'block';
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(() => document.getElementById('block-label').focus(), 300);
   state.modal = { open: true, day, hour };
@@ -1282,6 +1392,8 @@ function openEditModal(block) {
   document.getElementById('block-hour-end').value = block.endHour || block.hour + 1;
   selectCat(block.catId);
   renderHourOptions();
+  repeatDays = [state.selectedDay];
+  document.getElementById('repeat-group').style.display = 'none'; // al editar no se repite
   document.getElementById('modal-overlay').classList.add('open');
   state.modal = { open: true, day: state.selectedDay, hour: block.hour };
 }
@@ -1318,6 +1430,31 @@ function selectCat(id) {
   });
 }
 
+// ── REPETIR DÍAS ──
+let repeatDays = [];
+
+function toggleRepeatDay(i) {
+  if (repeatDays.includes(i)) {
+    repeatDays = repeatDays.filter(d => d !== i);
+  } else {
+    repeatDays.push(i);
+  }
+  renderRepeatDays();
+}
+
+function renderRepeatDays() {
+  document.querySelectorAll('.day-sel-pill').forEach(p => {
+    p.classList.toggle('selected', repeatDays.includes(parseInt(p.dataset.day)));
+  });
+  const hint = document.getElementById('repeat-hint');
+  if (repeatDays.length <= 1) {
+    hint.textContent = 'Solo este día';
+  } else {
+    const names = repeatDays.sort((a,b)=>a-b).map(i => CONFIG.days[i]).join(', ');
+    hint.textContent = `Se creará en: ${names}`;
+  }
+}
+
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   editingBlock = null;
@@ -1327,32 +1464,51 @@ function saveBlock() {
   const label = document.getElementById('block-label').value.trim();
   if (!label) { document.getElementById('block-label').focus(); return; }
   const hour = parseInt(document.getElementById('block-hour-start').value);
-  const endHour = parseInt(document.getElementById('block-hour-end').value);
+  const endHourRaw = parseInt(document.getElementById('block-hour-end').value);
+  const endHour = endHourRaw > hour ? endHourRaw : hour + 1;
   const wk = getWeekKey(state.currentWeekStart);
-  const day = state.modal.day;
 
   if (!state.blocks[wk]) state.blocks[wk] = {};
-  const key = `${day}-${hour}`;
 
   if (editingBlock) {
+    // Editar: quitar el viejo y volver a poner en el mismo día
+    const day = state.modal.day;
     const oldKey = `${day}-${editingBlock.hour}`;
     if (state.blocks[wk][oldKey]) {
       state.blocks[wk][oldKey] = state.blocks[wk][oldKey].filter(b => b.id !== editingBlock.id);
     }
+    const key = `${day}-${hour}`;
+    if (!state.blocks[wk][key]) state.blocks[wk][key] = [];
+    state.blocks[wk][key].push({
+      id: editingBlock.id, label, catId: selectedCat, hour, endHour,
+      done: editingBlock.done || false
+    });
+  } else {
+    // Nuevo: crear en todos los días seleccionados (repetición)
+    const days = repeatDays.length > 0 ? repeatDays : [state.modal.day];
+    for (const day of days) {
+      const key = `${day}-${hour}`;
+      if (!state.blocks[wk][key]) state.blocks[wk][key] = [];
+      state.blocks[wk][key].push({
+        id: genId(), label, catId: selectedCat, hour, endHour, done: false
+      });
+    }
   }
-
-  if (!state.blocks[wk][key]) state.blocks[wk][key] = [];
-  state.blocks[wk][key].push({
-    id: editingBlock ? editingBlock.id : genId(),
-    label,
-    catId: selectedCat,
-    hour,
-    endHour: endHour > hour ? endHour : hour + 1
-  });
 
   saveState();
   closeModal();
   render();
+}
+
+// Marcar bloque como hecho/no hecho
+function toggleBlockDone(wk, day, hour, id, ev) {
+  if (ev) ev.stopPropagation();
+  const key = `${day}-${hour}`;
+  const block = state.blocks[wk]?.[key]?.find(b => b.id === id);
+  if (block) block.done = !block.done;
+  saveState();
+  renderCalendar();
+  renderDayPills();
 }
 
 function deleteBlock(wk, day, hour, id) {
@@ -1525,7 +1681,13 @@ window.addEventListener('load', () => {
       </div>
     `).join('');
 
-    // Service Worker v2 - limpia caché vieja
+    // Render day selector (repetir)
+    const daySelector = document.getElementById('day-selector');
+    daySelector.innerHTML = CONFIG.days.map((d, i) => `
+      <div class="day-sel-pill" data-day="${i}" onclick="toggleRepeatDay(${i})">${d[0]}</div>
+    `).join('');
+
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').then(reg => reg.update()).catch(() => {});
     }
